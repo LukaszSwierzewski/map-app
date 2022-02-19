@@ -9,42 +9,67 @@
         </div>
         <div class='card--action'>
             <img class='card--action__logo' :src='place.icon'>
-            <button class='card--action__btn' @click='createMarker(place)'>Add marker
-                <span class='error' v-if='errors'>{{ errors }}</span>  
-            </button>
+            <div v-if="currentTab === 'founded'" class='card--action__btns'>
+                <button class='card--action__btn' @click='createMarker(place)'>Add marker
+                </button>
+            </div>
+            <div v-else class='card--action__btns'>
+                <button class='card--action__btn' @click='createMarker(place)'>zoom in
+                </button>
+                <button class='card--action__btn' @click='deleteMarkers(place)'>delete
+                </button>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import useMap from '@/use/useMap.js'
 import useResultManager from '@/use/useResultManager'
 import useLocalStorage from '@/use/useLocalStorage'
+import useUI from '@/use/useUI'
 export default {
+    props: {
+        place: {
+            Type: Object,
+            required: true
+        }
+    },
     setup (props) {
         const { map } = useMap()
-        const { savedPlaces } = useResultManager()
-        const { saveToLocalStorage, getFromLocalStorage, isAlreadyAdded } = useLocalStorage()
+        const { savedPlaces, currentTab } = useResultManager()
+        const { toggleMenu } = useUI()
+        const { saveToLocalStorage, isAlreadyAdded } = useLocalStorage()
+        let localMarker = reactive(null)
         let errors = ref(null)
         const createMarker = (place) => {
-            errors.value = null
             if (!place.geometry || !place.geometry.location) return;
-            const marker = new google.maps.Marker({
+            toggleMenu()
+            if (localMarker !== null) {
+                map.value.setCenter(place.geometry.location)
+                return
+            }
+            let marker = new google.maps.Marker({
                 map: map.value,
-                title: place.name,
                 position: place.geometry.location,
             });
+            map.value.setCenter(place.geometry.location)
             const isSaved = isAlreadyAdded(place, savedPlaces.value)
-            if (!isSaved) {
-                savedPlaces.value.push(place)
-            } else {
-                errors.value = 'Already added!'
-            }
+            if (!isSaved) savedPlaces.value.push(place)
             saveToLocalStorage('places', savedPlaces.value)
             createInfoWindow(marker, place)
+            localMarker = marker
         }
-    // create place info popup
+        const deleteMarkers = (place) => {
+            if (localMarker !== null) {
+                localMarker.setMap(null)
+                localMarker = reactive(null)
+            }
+            const index = savedPlaces.value.findIndex(key => key.place_id === place.place_id);
+            savedPlaces.value.splice(index, 1)
+            saveToLocalStorage('places', savedPlaces.value)
+        }
         const returnOpenString = (isOpen) => {
             if (isOpen) return 'Open now'
             if (isOpen === undefined) return 'No Data'
@@ -76,18 +101,11 @@ export default {
             marker.addListener("click", () => {
                 infoWindow.open({
                 anchor: marker,
-                map: map.value,
-                shouldFocus: true,
+                map: map.value
                 });
             });
         }
-        return { createMarker, returnOpenString, openString, errors }
-    },
-    props: {
-        place: {
-            Type: Object,
-            required: true
-        }
+        return { createMarker, returnOpenString, openString, errors, currentTab, deleteMarkers }
     }
 }
 </script>
@@ -117,6 +135,12 @@ export default {
         padding: 0rem 1rem;
         border-bottom: 1px solid #ddd;
         justify-content: space-between;
+        &--content {
+            max-width: 15rem;
+            @media (max-width: 767px) {
+                max-width: 10rem;
+            }
+        }
         &--action {
             display: flex;
             flex-direction: column;

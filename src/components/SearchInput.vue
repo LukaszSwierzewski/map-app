@@ -55,7 +55,11 @@ export default {
     .search {
         display: flex;
         margin-top: 1rem;
-        justify-content: space-evenly;
+        justify-content: space-between;
+        padding: 0.4rem 1rem;
+        @media (max-width: 767px) {
+            flex-direction: column-reverse;
+        }
     }
     .btn {
         display: inline-block;
@@ -67,7 +71,7 @@ export default {
         color: #fff;
         border-radius: 0.4rem;
         padding: 0.5rem 1rem;
-        transition-duration: 0.2s; 
+        transition-duration: 0.2s;
     }
     .input-base {
         flex: 0 0 70%;
@@ -78,6 +82,10 @@ export default {
         &:focus {
             border-color: #000;
             outline: none;
+        }
+        @media (max-width: 767px) {
+            margin-bottom: 0.5rem;
+            padding: 0.6rem;
         }
     }
     .btn:hover {

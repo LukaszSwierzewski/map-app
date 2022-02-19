@@ -11,13 +11,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
     .nav {
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0rem 0.5rem;
         border-bottom: 1px solid #ddd;
+        @media (max-width: 767px) {
+            display: none;
+        }
     }
     .logo {
         max-width: 4rem;

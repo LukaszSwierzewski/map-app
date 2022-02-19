@@ -8,8 +8,6 @@ export default function uselocalStorage() {
     return data
   }
   function isAlreadyAdded(obj, list) {
-    console.log(obj)
-    console.log(list)
     return list.some(elem => elem.place_id === obj.place_id)
 }
   return { saveToLocalStorage, getFromLocalStorage, isAlreadyAdded };

@@ -2,7 +2,7 @@
   <div class='app'>
     <TopBar/>
     <div class='layout'>
-      <div class='sidebar'>
+      <div :class="{'slide-out': !mobileMenu}" class='sidebar'>
         <div class='tab-panel'>
           <ul class='tabs'>
               <!-- This part could be better -->
@@ -17,11 +17,13 @@
       </div>
       <div ref="mapDiv" class="google--map" style="width: 100%; height: 100vh" />
     </div>
+    <div class='hidder' @click='toggleMenu'>
+      {{ toggleIcon}}
+    </div>
   </div>
 </template>
 <script>
-/* eslint-disable no-undef */
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import PlaceResults from '@/components/PlaceResults.vue'
 import SearchInput from '@/components/SearchInput.vue'
 import TopBar from '@/components/TopBar.vue'
@@ -29,6 +31,7 @@ import useMap from '@/use/useMap'
 import usePlaces from '@/use/usePlaces'
 import useResultManager from '@/use/useResultManager'
 import useLocalStorage from '@/use/useLocalStorage'
+import useUI from '@/use/useUI'
 export default {
   name: 'App',
   components: {
@@ -42,16 +45,15 @@ export default {
     const { initPlacesService } = usePlaces()
     const { foundPlaces, savedPlaces, places, tabResultSwitcher, currentTab } = useResultManager()
     const { getFromLocalStorage } = useLocalStorage()
+    const { toggleIcon, toggleMenu, mobileMenu } = useUI()
     onMounted(() => {
       initMap(mapDiv)
       initPlacesService(map)
       initRestrictions()
       tabResultSwitcher(currentTab.value)
-      console.log('hallooo')
-      console.log(getFromLocalStorage('places'))
       savedPlaces.value = getFromLocalStorage('places')
     })
-    return { mapDiv, tabResultSwitcher, places, currentTab, foundPlaces, savedPlaces, tabResultSwitcher }
+    return { mapDiv, tabResultSwitcher, places, currentTab, foundPlaces, savedPlaces, toggleIcon, tabResultSwitcher, toggleMenu, mobileMenu }
   }
 }
 </script>
@@ -68,6 +70,9 @@ export default {
 .layout {
   display: grid;
   grid-template-columns: 4fr 6fr;
+  @media (max-width: 767px) {
+    display: block;
+  }
 }
 .results {
   max-height: 90vh;
@@ -90,4 +95,37 @@ export default {
   background: #333;
   color: white;
 }
+.sidebar {
+  @media (max-width: 767px) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    z-index: 10;
+    transition-duration: 0.3s;
+    &.slide-out {
+      transform: translate(-100%, 0%)
+    }
+  }
+}
+.hidder {
+  position: absolute;
+  z-index: 20;
+  background: #000;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  bottom: 10px;
+  left: 10px;
+  align-items: center;
+  display: none;
+  justify-content: center;
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
 </style>
