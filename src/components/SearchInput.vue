@@ -1,7 +1,12 @@
 <template>
-    <div class='search'>
-        <button class='btn' @click='searchForPlaces(searchQuery)'>Search</button>
-        <input placeholder='Start typing...' class='input-base' type='text' v-model='searchQuery'/>
+    <div>
+        <div class='search'>
+            <button class='btn' @click='searchForPlaces(searchQuery)'>Search</button>
+            <input placeholder='Start typing...' class='input-base' type='text' v-model='searchQuery'/>
+        </div>
+        <ul v-if='errorArray.length > 0'>
+            <li v-for='(error, index) in errorArray' :key='index' class='error'>{{ error }}</li>
+        </ul>
     </div>
 </template>
 
@@ -15,29 +20,33 @@ export default {
         const { placesService } = usePlaces()
         const { placesRestrictionArea } = useMap()
         const restrictSearch = (location, radius, query) => {
-        return {
-            location,
-            radius, 
-            query
+            return {
+                location,
+                radius, 
+                query
+            }
         }
-    }
-    // search for places and save result in foundPlaces reference
-
-        const { foundPlaces } = useResultManager()
+        const { foundPlaces, tabResultSwitcher } = useResultManager()
         let searchQuery = ref('')
+        const errorArray = ref([])
         const searchForPlaces = () => {
             foundPlaces.value = []
-            console.log(placesRestrictionArea)
+            errorArray.value = []
+            if (searchQuery.value.length <= 3) {
+                errorArray.value.push('Search text should have atleast 3 letters')
+                return
+            }
             const request = restrictSearch(placesRestrictionArea.value, '3', searchQuery.value)
             placesService.value.textSearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results) {
                 foundPlaces.value = results
+                tabResultSwitcher('founded')
             } else {
-                foundPlaces.value = false
+                foundPlaces.value = []
             }
         });
         }
-        return { searchForPlaces, searchQuery, foundPlaces }
+        return { searchForPlaces, searchQuery, foundPlaces, errorArray }
     }
 }
 </script>
@@ -75,5 +84,8 @@ export default {
         background-color: #444;
         color: white; 
         cursor: pointer;
+    }
+    .error {
+        color: red;
     }
 </style>

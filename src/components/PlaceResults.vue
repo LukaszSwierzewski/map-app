@@ -5,11 +5,13 @@
             <address>
                 {{ place.formatted_address }}
             </address>
-            <p>Is open: <strong>{{ openString }}</strong></p>
+            <p>Open: <strong>{{ openString }}</strong></p>
         </div>
         <div class='card--action'>
             <img class='card--action__logo' :src='place.icon'>
-            <button class='card--action__btn' @click='createMarker(place)'>Add marker</button>
+            <button class='card--action__btn' @click='createMarker(place)'>Add marker
+                <span class='error' v-if='errors'>{{ errors }}</span>  
+            </button>
         </div>
     </div>
 </template>
@@ -17,16 +19,29 @@
 <script>
 import { ref, onMounted } from 'vue'
 import useMap from '@/use/useMap.js'
+import useResultManager from '@/use/useResultManager'
+import useLocalStorage from '@/use/useLocalStorage'
 export default {
     setup (props) {
         const { map } = useMap()
+        const { savedPlaces } = useResultManager()
+        const { saveToLocalStorage, getFromLocalStorage, isAlreadyAdded } = useLocalStorage()
+        let errors = ref(null)
         const createMarker = (place) => {
+            errors.value = null
             if (!place.geometry || !place.geometry.location) return;
             const marker = new google.maps.Marker({
                 map: map.value,
                 title: place.name,
                 position: place.geometry.location,
             });
+            const isSaved = isAlreadyAdded(place, savedPlaces.value)
+            if (!isSaved) {
+                savedPlaces.value.push(place)
+            } else {
+                errors.value = 'Already added!'
+            }
+            saveToLocalStorage('places', savedPlaces.value)
             createInfoWindow(marker, place)
         }
     // create place info popup
@@ -66,7 +81,7 @@ export default {
                 });
             });
         }
-        return { createMarker, returnOpenString, openString }
+        return { createMarker, returnOpenString, openString, errors }
     },
     props: {
         place: {
@@ -116,6 +131,14 @@ export default {
                 padding: 0.5rem;
                 border-radius: 0.2rem;
                 transition-duration: 0.2s;
+                position: relative;
+                .error {
+                    position: absolute;
+                    bottom: -20px;
+                    color: red;
+                    left: -50%;
+                    transform: translate(50%, 0%);
+                }
                 &:hover {
                     background: #000;
                     color: white;
