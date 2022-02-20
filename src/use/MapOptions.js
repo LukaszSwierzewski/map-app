@@ -7,6 +7,7 @@ const HELSINKI_AREA = {
   export const HELSINKI = { "lat": 60.19, "lng": 24.95 }
   export const MAP_OPTIONS = {
       center: HELSINKI,
+      streetViewControl: false,
       zoom: 12,
       restriction: {
           latLngBounds: HELSINKI_AREA,

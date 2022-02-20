@@ -2,7 +2,10 @@
     <div>
         <div class='search'>
             <button class='btn' @click='searchForPlaces(searchQuery)'>Search</button>
-            <input placeholder='Start typing...' class='input-base' type='text' v-model='searchQuery'/>
+            <input placeholder='Find places in Helsinki' 
+                class='input-base'
+                @keyup.enter="searchForPlaces(searchQuery)"
+                type='text' v-model='searchQuery'/>
         </div>
         <ul v-if='errorArray.length > 0'>
             <li v-for='(error, index) in errorArray' :key='index' class='error'>{{ error }}</li>
@@ -36,7 +39,7 @@ export default {
                 errorArray.value.push('Search text should have atleast 3 letters')
                 return
             }
-            const request = restrictSearch(placesRestrictionArea.value, '3', searchQuery.value)
+            const request = restrictSearch(placesRestrictionArea.value, '2', searchQuery.value)
             placesService.value.textSearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results) {
                 foundPlaces.value = results
@@ -71,12 +74,15 @@ export default {
         color: #fff;
         border-radius: 0.4rem;
         padding: 0.5rem 1rem;
+        width: 100%;
+        margin-right: 1rem;
         transition-duration: 0.2s;
     }
     .input-base {
         flex: 0 0 70%;
         border-radius: 0.4rem;
         font-size: 1.2rem;
+        padding-left: 0.5rem;
         border: 1px solid #ddd;
         transition-duration: 0.2s; 
         &:focus {

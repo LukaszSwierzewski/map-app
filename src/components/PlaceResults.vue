@@ -39,13 +39,15 @@ export default {
     setup (props) {
         const { map } = useMap()
         const { savedPlaces, currentTab } = useResultManager()
-        const { toggleMenu } = useUI()
+        const { toggleMenu, isMobile } = useUI()
         const { saveToLocalStorage, isAlreadyAdded } = useLocalStorage()
         let localMarker = reactive(null)
         let errors = ref(null)
         const createMarker = (place) => {
             if (!place.geometry || !place.geometry.location) return;
-            toggleMenu()
+            if (isMobile) {
+                toggleMenu()
+            }
             if (localMarker !== null) {
                 map.value.setCenter(place.geometry.location)
                 return
@@ -85,7 +87,7 @@ export default {
                 <div class='marker--content'>
                     <div class='marker--content__heading'>
                         <h4 class='h4'>${place.name}</h4>
-                        <span>${openString.value}</span>
+                        <span>Open: ${openString.value}</span>
                     </div>
                     <img class='marker--content__img' src=${place.icon} alt=''>
                 </div>
@@ -153,6 +155,7 @@ export default {
                 background: white;
                 border: 1px solid #ddd;
                 padding: 0.5rem;
+                margin-left: 0.2rem;
                 border-radius: 0.2rem;
                 transition-duration: 0.2s;
                 position: relative;

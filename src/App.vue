@@ -15,7 +15,7 @@
           <PlaceResults v-for='place in places' :place='place' :key='place.name'/>
         </div>
       </div>
-      <div ref="mapDiv" class="google--map" style="width: 100%; height: 100vh" />
+      <div ref="mapDiv" class="google--map" />
     </div>
     <div class='hidder' @click='toggleMenu'>
       {{ toggleIcon}}
@@ -23,7 +23,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import PlaceResults from '@/components/PlaceResults.vue'
 import SearchInput from '@/components/SearchInput.vue'
 import TopBar from '@/components/TopBar.vue'
@@ -75,8 +75,15 @@ export default {
   }
 }
 .results {
-  max-height: 90vh;
+  height: 90vh;
   overflow: scroll;
+}
+.google--map {
+  width: 100%;
+  height: 90vh;
+  @media (max-width: 767px) {
+    height: 100vh;
+  }
 }
 .tabs {
   display: flex;
