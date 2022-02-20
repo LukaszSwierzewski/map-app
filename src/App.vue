@@ -123,8 +123,8 @@ export default {
   background: #000;
   color: white;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 3rem;
+  height: 3rem;
   bottom: 10px;
   left: 10px;
   align-items: center;

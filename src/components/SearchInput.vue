@@ -22,13 +22,6 @@ export default {
     setup () {
         const { placesService } = usePlaces()
         const { placesRestrictionArea } = useMap()
-        const restrictSearch = (location, radius, query) => {
-            return {
-                location,
-                radius, 
-                query
-            }
-        }
         const { foundPlaces, tabResultSwitcher } = useResultManager()
         let searchQuery = ref('')
         const errorArray = ref([])
@@ -39,7 +32,11 @@ export default {
                 errorArray.value.push('Search text should have atleast 3 letters')
                 return
             }
-            const request = restrictSearch(placesRestrictionArea.value, '2', searchQuery.value)
+              var request = {
+                location: placesRestrictionArea.value,
+                radius: '5',
+                query: searchQuery.value
+            };
             placesService.value.textSearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results) {
                 foundPlaces.value = results

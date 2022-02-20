@@ -7,7 +7,9 @@ export default function useMap() {
         map.value = new google.maps.Map(mapDiv.value, MAP_OPTIONS)
     }
     const initRestrictions = () => {
-        placesRestrictionArea.value = new google.maps.LatLng(60.19, 24.95)
+        const northEast = new google.maps.LatLng(60.2755, 25.26)
+        placesRestrictionArea.value = new google.maps.LatLng(northEast)
     }
+
   return { initMap, initRestrictions, map, placesRestrictionArea };
 }
